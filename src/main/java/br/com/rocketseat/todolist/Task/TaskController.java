@@ -20,25 +20,18 @@ public class TaskController {
     @Autowired
     private ITaskRepository taskRepository;
 
-    //vamos acessar pelo post entao vamos definir o postmap
     @PostMapping("/")
-    // temos que passar esse http para pegar o idUser no nosso filtrer
     public ResponseEntity create(@RequestBody TaskModel taskModel, HttpServletRequest request){
        var idUser = request.getAttribute("idUser");
-        //vamos setar nosso idUser dentro do nosso taskmodel
         taskModel.setIdUser((UUID)idUser);
 
-        //validando a data
         var currentDate = LocalDateTime.now();
-        // se a data de start for maior que a data atual
         if (currentDate.isAfter(taskModel.getStartAt())  || currentDate.isAfter(taskModel.getEndAt())){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A data de inicio/termino deve ser maior que a data atual");
         }
-        //validando se a minha data de inicio é depois do fim
         if (taskModel.getStartAt().isAfter(taskModel.getEndAt())){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A data de inicio deve ser menor que a data de termino");
         }
-        //chamando o repositorio e criando uma task
         var task = this.taskRepository.save(taskModel);
         return ResponseEntity.status(HttpStatus.OK).body(task);
     }
@@ -51,17 +44,25 @@ public class TaskController {
         return tasks;
     }
 
-    //receber informações
-    //precisamos passar o id para saber a tasks q vai editar
     @PutMapping("/{id}")
-    public TaskModel update(@RequestBody TaskModel taskModel, HttpServletRequest request, @PathVariable UUID id){
-        //buscar no banco de dados, o id da task
-        // se nao retornar nada ele retorna null
+    public ResponseEntity update(@RequestBody TaskModel taskModel, HttpServletRequest request, @PathVariable UUID id){
+
         var task = this.taskRepository.findById(id).orElse( null);
+
+        // validando se task existe
+        if(task == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tarefa nao encontrada");
+        }
+        // validando se o usuario que vai alterar é realmente o dono da tareffa
+        var idUser = request.getAttribute("idUser");
+        if (!task.getIdUser().equals(idUser)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuario sem permissao para alterar essa tarefa");
+        }
+
         // passsar nosso source e nosso target
         Utils.copyNonNullProperties(taskModel, task);
-
-        return this.taskRepository.save(task);
+        var taskUpdated = this.taskRepository.save(task);
+        return ResponseEntity.ok().body(taskUpdated);
     }
 
 

@@ -10,4 +10,5 @@ public interface ITaskRepository extends JpaRepository<TaskModel, UUID> {
     // listar todos os idUser
     List<TaskModel> findByIdUser(UUID idUser);
 
+
 }
