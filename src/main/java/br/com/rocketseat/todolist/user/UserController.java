@@ -13,13 +13,9 @@ import at.favre.lib.crypto.bcrypt.BCrypt;
 @RequestMapping("/user")
 public class UserController {
 
-    // instanciando nossa interface
     @Autowired
     private IUserRepository userRepository;
 
-
-    // vamos usar om ResponseEntity para termos diferentes tipos de retorno
-    // estamos salvando o usuariio
     @PostMapping("/")
     public ResponseEntity create(@RequestBody UserModel userModel) {
         var user = this.userRepository.findByUsername(userModel.getUsername());
@@ -27,13 +23,8 @@ public class UserController {
         if (user != null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário já existe");
         }
-
-        //vamos criptografar nossa senha antes de retornar o usuario
-        // o 12 passamos por padrao, depois passamos oq queremos criptografar
-        // o tochar transforma num array de caracteres
         var passwordHashred  = BCrypt.withDefaults().hashToString(12, userModel.getPassword().toCharArray());
 
-        //atribuindo valor
         userModel.setPassword(passwordHashred);
         var userCreate = this.userRepository.save(userModel);
         return ResponseEntity.status(HttpStatus.OK).body(userCreate);

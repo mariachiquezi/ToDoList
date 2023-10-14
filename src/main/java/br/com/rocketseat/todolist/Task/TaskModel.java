@@ -41,15 +41,13 @@ public class TaskModel {
     private LocalDateTime endAt;
     private String priority;
 
-    //para mostrar quando foi criado no banco de dados
     @CreationTimestamp
     private LocalDateTime createAt;
 
-    // vamos ajustar nosso title, custamizacao
-    // esse throws exception para nao precisar tratar a excessao
+
     public void setTitle(String title) throws Exception{
         if (title.length() > 50){
-            //mostrar erro, lancar excessao
+            //mostrar erro
             throw new Exception("O titulo deve conter no maximo 50 caracteres");
 
         }

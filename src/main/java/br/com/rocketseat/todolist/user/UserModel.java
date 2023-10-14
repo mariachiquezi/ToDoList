@@ -20,9 +20,7 @@ import java.util.UUID;
 //nome da tabela
 @Entity(name="tb_users")
 public class UserModel {
-    //chave primaria
 
-    //para gerar id de forma automatica
     @GeneratedValue(generator = "UUID")
     @Id
     private UUID id;

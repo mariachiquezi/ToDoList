@@ -16,7 +16,6 @@ import java.util.UUID;
 @RequestMapping("/tasks")
 public class TaskController {
 
-    //para armazenar o taskmodel
     @Autowired
     private ITaskRepository taskRepository;
 
@@ -39,7 +38,6 @@ public class TaskController {
     @GetMapping("/")
     public List<TaskModel> list(HttpServletRequest request){
         var idUser = request.getAttribute("idUser");
-        //pegando o idUser
         var tasks = this.taskRepository.findByIdUser((UUID) idUser);
         return tasks;
     }
@@ -53,13 +51,12 @@ public class TaskController {
         if(task == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tarefa nao encontrada");
         }
-        // validando se o usuario que vai alterar é realmente o dono da tareffa
+        // validando se o usuario que vai alterar é realmente o dono da tarefa
         var idUser = request.getAttribute("idUser");
         if (!task.getIdUser().equals(idUser)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuario sem permissao para alterar essa tarefa");
         }
 
-        // passsar nosso source e nosso target
         Utils.copyNonNullProperties(taskModel, task);
         var taskUpdated = this.taskRepository.save(task);
         return ResponseEntity.ok().body(taskUpdated);
